@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coinbox Mining - Generador de Recibos</title>
+    <!-- jsPDF desde CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #F5F5F5;
+            color: #333;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #F5A623;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        input {
+            padding: 10px 14px;
+            border: 1.5px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        input:focus { border-color: #F5A623; }
+
+        input.error { border-color: #e74c3c; }
+
+        /* Secciones de items */
+        .items-section { margin-bottom: 20px; }
+
+        .items-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .items-header label { margin-bottom: 0; }
+
+        .item-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+
+        .item-row input:first-child { flex: 2; }
+        .item-row input:nth-child(2) { flex: 1; }
+
+        .btn-remove {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .btn-remove:hover { background: #c0392b; }
+
+        .btn-add {
+            background: none;
+            border: 1.5px dashed #F5A623;
+            color: #F5A623;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-add:hover { background: #FFF8EE; }
+
+        /* Subtotal */
+        .subtotal-row {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 16px;
+            margin: 16px 0 28px;
+            padding: 12px 16px;
+            background: #FFF8EE;
+            border-radius: 8px;
+            border: 1.5px solid #F5A623;
+        }
+
+        .subtotal-row span {
+            font-weight: 700;
+            font-size: 16px;
+            color: #F5A623;
+        }
+
+        #subtotalDisplay {
+            font-size: 20px;
+            color: #333;
+            font-weight: 700;
+        }
+
+        /* Logo upload */
+        .logo-section {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .logo-section label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .logo-preview {
+            width: 180px;
+            height: 80px;
+            margin: 0 auto;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #aaa;
+            font-size: 13px;
+            overflow: hidden;
+            background: #fafafa;
+        }
+
+        .logo-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* Botones */
+        .btn-generate {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #F5A623;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: background 0.2s;
+        }
+
+        .btn-generate:hover { background: #e09510; }
+
+        .error-msg {
+            color: #e74c3c;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Coinbox Mining</h1>
+        <p class="subtitle">Generador de Recibos PDF</p>
+
+        <!-- Logo upload -->
+        <div class="logo-section">
+            <label>Logo de Coinbox Mining</label>
+            <input type="file" id="logoInput" accept="image/*" style="margin-bottom:10px;">
+            <div class="logo-preview" id="logoPreview">Sin logo cargado</div>
+        </div>
+
+        <!-- Fecha e Invoice To -->
+        <div class="form-row">
+            <div class="form-group">
+                <label for="invoiceDate">Invoice Date</label>
+                <input type="text" id="invoiceDate" placeholder="26 de diciembre de 2025">
+            </div>
+            <div class="form-group">
+                <label for="invoiceTo">Invoice To</label>
+                <input type="text" id="invoiceTo" placeholder="Nahuel Rausch">
+            </div>
+        </div>
+
+        <!-- Items -->
+        <div class="items-section">
+            <div class="items-header">
+                <label>Items</label>
+                <button class="btn-add" id="btnAdd">+ Agregar Item</button>
+            </div>
+            <div id="itemsContainer">
+                <div class="item-row">
+                    <input type="text" class="item-desc" placeholder="Descripcion (ej: S21 + 235 th)">
+                    <input type="text" class="item-amount" placeholder="Monto (ej: 5400)">
+                    <button class="btn-remove" title="Eliminar" onclick="removeItem(this)">&times;</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtotal -->
+        <div class="subtotal-row">
+            <span>SUBTOTAL:</span>
+            <span id="subtotalDisplay">$0 USD</span>
+        </div>
+
+        <!-- Generar PDF -->
+        <button class="btn-generate" id="btnGenerate">Generar PDF</button>
+        <p class="error-msg" id="errorMsg">Por favor, completa todos los campos antes de generar el recibo.</p>
+    </div>
+
+    <script>
+        // === Estado del logo ===
+        let logoDataURL = null;
+
+        // Cargar logo desde archivo
+        document.getElementById('logoInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                logoDataURL = ev.target.result;
+                document.getElementById('logoPreview').innerHTML =
+                    '<img src="' + logoDataURL + '" alt="Logo">';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // === Agregar item ===
+        document.getElementById('btnAdd').addEventListener('click', function() {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML =
+                '<input type="text" class="item-desc" placeholder="Descripcion (ej: S21 + 235 th)">' +
+                '<input type="text" class="item-amount" placeholder="Monto (ej: 5400)">' +
+                '<button class="btn-remove" title="Eliminar" onclick="removeItem(this)">&times;</button>';
+            document.getElementById('itemsContainer').appendChild(row);
+            recalcSubtotal();
+        });
+
+        // Eliminar item (mantener al menos uno)
+        function removeItem(btn) {
+            const container = document.getElementById('itemsContainer');
+            if (container.children.length > 1) {
+                btn.parentElement.remove();
+                recalcSubtotal();
+            }
+        }
+
+        // === Recalcular subtotal en tiempo real ===
+        function recalcSubtotal() {
+            const amounts = document.querySelectorAll('.item-amount');
+            let total = 0;
+            amounts.forEach(function(input) {
+                const val = parseFloat(input.value.replace(/[^0-9.]/g, ''));
+                if (!isNaN(val)) total += val;
+            });
+            document.getElementById('subtotalDisplay').textContent = '$' + total.toLocaleString('en-US') + ' USD';
+        }
+
+        // Escuchar cambios en montos
+        document.getElementById('itemsContainer').addEventListener('input', function(e) {
+            if (e.target.classList.contains('item-amount')) recalcSubtotal();
+        });
+
+        // === Validacion ===
+        function validateForm() {
+            let valid = true;
+            const date = document.getElementById('invoiceDate');
+            const to = document.getElementById('invoiceTo');
+            const descs = document.querySelectorAll('.item-desc');
+            const amounts = document.querySelectorAll('.item-amount');
+
+            // Limpiar errores
+            document.querySelectorAll('input').forEach(function(i) { i.classList.remove('error'); });
+
+            if (!date.value.trim()) { date.classList.add('error'); valid = false; }
+            if (!to.value.trim()) { to.classList.add('error'); valid = false; }
+
+            descs.forEach(function(d) {
+                if (!d.value.trim()) { d.classList.add('error'); valid = false; }
+            });
+            amounts.forEach(function(a) {
+                const val = parseFloat(a.value.replace(/[^0-9.]/g, ''));
+                if (!a.value.trim() || isNaN(val)) { a.classList.add('error'); valid = false; }
+            });
+
+            document.getElementById('errorMsg').style.display = valid ? 'none' : 'block';
+            return valid;
+        }
+
+        // === Generar PDF con jsPDF ===
+        document.getElementById('btnGenerate').addEventListener('click', function() {
+            if (!validateForm()) return;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pageW = 210;
+            const margin = 20;
+            const contentW = pageW - margin * 2;
+            let y = 15;
+
+            // Colores
+            const orange = [245, 166, 35];   // #F5A623
+            const black = [0, 0, 0];
+            const white = [255, 255, 255];
+            const darkGray = [51, 51, 51];
+            const lightGray = [245, 245, 245];
+
+            // --- Linea decorativa superior ---
+            doc.setFillColor(...orange);
+            doc.rect(margin, y, contentW, 2, 'F');
+            doc.setFillColor(...black);
+            doc.rect(margin, y + 2, contentW, 1, 'F');
+            y += 8;
+
+            // --- Logo superior ---
+            if (logoDataURL) {
+                try {
+                    doc.addImage(logoDataURL, 'PNG', pageW / 2 - 30, y, 60, 26);
+                    y += 30;
+                } catch(e) {
+                    doc.setFontSize(20);
+                    doc.setTextColor(...orange);
+                    doc.text('COINBOX MINING', pageW / 2, y + 14, { align: 'center' });
+                    y += 24;
+                }
+            } else {
+                doc.setFontSize(20);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...orange);
+                doc.text('COINBOX MINING', pageW / 2, y + 14, { align: 'center' });
+                y += 24;
+            }
+
+            y += 4;
+
+            // --- Invoice Date / Invoice To ---
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...darkGray);
+            doc.text('Invoice Date:', margin, y);
+            doc.text('Invoice To:', pageW / 2 + 10, y);
+
+            doc.setFont('helvetica', 'normal');
+            y += 7;
+            doc.text(document.getElementById('invoiceDate').value.trim(), margin, y);
+            doc.text(document.getElementById('invoiceTo').value.trim(), pageW / 2 + 10, y);
+
+            y += 14;
+
+            // --- Tabla: encabezado ---
+            const tableX = margin;
+            const tableW = contentW;
+            const col1W = tableW * 0.65;
+            const col2W = tableW * 0.35;
+            const rowH = 10;
+
+            doc.setFillColor(...orange);
+            doc.rect(tableX, y, tableW, rowH, 'F');
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...white);
+            doc.text('ITEM DESCRIPTION', tableX + 4, y + 7);
+            doc.text('STATUS', tableX + col1W + col2W - 4, y + 7, { align: 'right' });
+            y += rowH;
+
+            // --- Tabla: filas de items ---
+            const descs = document.querySelectorAll('.item-desc');
+            const amounts = document.querySelectorAll('.item-amount');
+            let subtotal = 0;
+
+            for (let i = 0; i < descs.length; i++) {
+                const desc = descs[i].value.trim();
+                const rawAmount = parseFloat(amounts[i].value.replace(/[^0-9.]/g, ''));
+                subtotal += rawAmount;
+                const amountStr = '$' + rawAmount.toLocaleString('en-US') + ' USD';
+
+                // Fondo alterno sutil
+                if (i % 2 === 0) {
+                    doc.setFillColor(...white);
+                } else {
+                    doc.setFillColor(250, 250, 250);
+                }
+                doc.rect(tableX, y, tableW, rowH, 'F');
+
+                // Bordes laterales sutiles
+                doc.setDrawColor(220, 220, 220);
+                doc.line(tableX, y, tableX, y + rowH);
+                doc.line(tableX + tableW, y, tableX + tableW, y + rowH);
+                doc.line(tableX, y + rowH, tableX + tableW, y + rowH);
+
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                doc.setTextColor(...darkGray);
+                doc.text(desc, tableX + 4, y + 7);
+                doc.text(amountStr, tableX + col1W + col2W - 4, y + 7, { align: 'right' });
+                y += rowH;
+            }
+
+            // --- Fila SUBTOTAL ---
+            doc.setFillColor(...orange);
+            doc.rect(tableX, y, tableW, rowH + 2, 'F');
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...white);
+            doc.text('SUBTOTAL', tableX + 4, y + 8);
+            doc.text('$' + subtotal.toLocaleString('en-US') + ' USD', tableX + col1W + col2W - 4, y + 8, { align: 'right' });
+            y += rowH + 2;
+
+            // --- Espacio y logo inferior grande ---
+            y += 20;
+            if (logoDataURL) {
+                try {
+                    doc.addImage(logoDataURL, 'PNG', pageW / 2 - 40, y, 80, 35);
+                    y += 40;
+                } catch(e) {
+                    doc.setFontSize(24);
+                    doc.setTextColor(...orange);
+                    doc.text('COINBOX MINING', pageW / 2, y + 18, { align: 'center' });
+                    y += 30;
+                }
+            } else {
+                doc.setFontSize(24);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(...orange);
+                doc.text('COINBOX MINING', pageW / 2, y + 18, { align: 'center' });
+                y += 30;
+            }
+
+            y += 6;
+
+            // --- Linea decorativa inferior ---
+            doc.setFillColor(...black);
+            doc.rect(margin, y, contentW, 1, 'F');
+            doc.setFillColor(...orange);
+            doc.rect(margin, y + 1, contentW, 2, 'F');
+
+            // === Descargar con nombre descriptivo ===
+            const clientName = document.getElementById('invoiceTo').value.trim().replace(/\s+/g, '_');
+            const dateStr = document.getElementById('invoiceDate').value.trim().replace(/\s+/g, '_');
+            const filename = 'Recibo_Coinbox_' + clientName + '_' + dateStr + '.pdf';
+            doc.save(filename);
+        });
+    </script>
+</body>
+</html>
