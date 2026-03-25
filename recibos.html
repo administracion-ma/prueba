@@ -80,6 +80,32 @@
 
         .f-col { flex: 1; }
 
+        /* Radio buttons tipo de pago */
+        .f-radios {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 22px;
+        }
+
+        .f-radios label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ccc;
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .f-radios input[type="radio"] {
+            accent-color: #F5A623;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
         /* Seccion items */
         .f-items-title {
             display: flex;
@@ -445,6 +471,15 @@
             </div>
         </div>
 
+        <!-- Tipo de pago -->
+        <div style="margin-bottom: 6px;">
+            <label class="f-label">Tipo de Pago</label>
+        </div>
+        <div class="f-radios">
+            <label><input type="radio" name="payType" value="full" checked> Full Payment</label>
+            <label><input type="radio" name="payType" value="deposit"> Deposit</label>
+        </div>
+
         <!-- Items -->
         <div class="f-items-title">
             <span>Equipos</span>
@@ -457,6 +492,12 @@
         <div class="f-subtotal">
             <span>Subtotal</span>
             <span id="subtotalDisplay">$0 USD</span>
+        </div>
+
+        <!-- Remaining Balance (opcional) -->
+        <div style="margin-bottom: 22px;">
+            <label class="f-label" for="fRemaining">Remaining Balance (optional)</label>
+            <input type="number" id="fRemaining" class="f-input" placeholder="0" min="0">
         </div>
 
         <!-- Credit Balance (opcional) -->
@@ -523,6 +564,10 @@
 
             <!-- Filas extra condicionales (dentro del padding de la tabla) -->
             <div class="r-table-wrap">
+                <div id="rRemainingRow" class="r-extra-row" style="display:none;">
+                    <span class="r-extra-label">Remaining Balance :</span>
+                    <span class="r-extra-value" id="rRemaining"></span>
+                </div>
                 <div id="rCreditRow" class="r-extra-row" style="display:none;">
                     <span class="r-extra-label">Credit Balance :</span>
                     <span class="r-extra-value" id="rCredit"></span>
@@ -779,8 +824,23 @@
                 tbody.appendChild(tr);
             }
 
-            // Subtotal
+            // Subtotal label segun tipo de pago
+            var payType = document.querySelector('input[name="payType"]:checked').value;
+            var subtotalLabelEl = document.querySelector('.r-table tfoot td:first-child');
+            subtotalLabelEl.textContent = payType === 'deposit' ? 'Deposit Payment :' : 'Subtotal :';
+
+            // Subtotal monto
             document.getElementById('rSubtotal').textContent = fmtMoney(subtotal);
+
+            // Remaining Balance (opcional)
+            var remainingVal = parseFloat(document.getElementById('fRemaining').value) || 0;
+            var remainingRow = document.getElementById('rRemainingRow');
+            if (remainingVal > 0) {
+                document.getElementById('rRemaining').textContent = fmtMoney(remainingVal);
+                remainingRow.style.display = 'flex';
+            } else {
+                remainingRow.style.display = 'none';
+            }
 
             // Credit Balance (opcional)
             var creditVal = parseFloat(document.getElementById('fCredit').value) || 0;
