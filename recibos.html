@@ -340,6 +340,28 @@
         .r-table tfoot td:first-child { text-align: left; }
         .r-table tfoot td:last-child { text-align: right; }
 
+        /* --- Filas extra debajo del subtotal (remaining, credit balance) --- */
+        .r-extra-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            height: 45px;
+            border-bottom: 1px solid #CCC;
+            background: #fff;
+            font-size: 13px;
+            color: #222;
+        }
+
+        .r-extra-row .r-extra-label {
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .r-extra-row .r-extra-value {
+            font-weight: 700;
+        }
+
         /* --- Espacio blanco --- */
         .r-spacer { height: 120px; }
 
@@ -437,6 +459,12 @@
             <span id="subtotalDisplay">$0 USD</span>
         </div>
 
+        <!-- Credit Balance (opcional) -->
+        <div style="margin-bottom: 22px;">
+            <label class="f-label" for="fCredit">Credit Balance (opcional)</label>
+            <input type="number" id="fCredit" class="f-input" placeholder="Credit balance (optional)" min="0">
+        </div>
+
         <!-- Generar -->
         <button class="btn-gen" id="btnGen">Generar PDF</button>
     </div>
@@ -491,6 +519,14 @@
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+
+            <!-- Filas extra condicionales (dentro del padding de la tabla) -->
+            <div class="r-table-wrap">
+                <div id="rCreditRow" class="r-extra-row" style="display:none;">
+                    <span class="r-extra-label">Credit Balance :</span>
+                    <span class="r-extra-value" id="rCredit"></span>
+                </div>
             </div>
 
             <!-- Espacio blanco -->
@@ -745,6 +781,16 @@
 
             // Subtotal
             document.getElementById('rSubtotal').textContent = fmtMoney(subtotal);
+
+            // Credit Balance (opcional)
+            var creditVal = parseFloat(document.getElementById('fCredit').value) || 0;
+            var creditRow = document.getElementById('rCreditRow');
+            if (creditVal > 0) {
+                document.getElementById('rCredit').textContent = fmtMoney(creditVal);
+                creditRow.style.display = 'flex';
+            } else {
+                creditRow.style.display = 'none';
+            }
 
             // Titulo para sugerir nombre de archivo
             var clientName = document.getElementById('fName').value.trim().replace(/\s+/g, '_');
