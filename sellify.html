@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sellify - Generador de Recibos</title>
+    <style>
+        /* ============================================================
+           RESET & BASE
+           ============================================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            background: #111;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        /* ============================================================
+           FORMULARIO
+           ============================================================ */
+        #formulario {
+            width: 100%;
+            max-width: 600px;
+            background: #1a1a1a;
+            border-radius: 14px;
+            padding: 36px 32px;
+        }
+
+        #formulario h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 28px;
+            letter-spacing: 0.3px;
+        }
+
+        .f-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #aaa;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .f-input, .f-select {
+            width: 100%;
+            padding: 10px 12px;
+            background: #2a2a2a;
+            border: 1.5px solid #444;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 15px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .f-input:focus, .f-select:focus { border-color: #fff; }
+        .f-input.error, .f-select.error { border-color: #e74c3c; }
+
+        .f-select option { background: #2a2a2a; color: #fff; }
+
+        .f-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 22px;
+        }
+
+        .f-col { flex: 1; }
+
+        /* Radio buttons */
+        .f-radios {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 22px;
+        }
+
+        .f-radios label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #ccc;
+            cursor: pointer;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .f-radios input[type="radio"] {
+            accent-color: #fff;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* Seccion items */
+        .f-items-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            margin-top: 6px;
+        }
+
+        .f-items-title span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .f-item {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-bottom: 12px;
+            padding: 14px;
+            background: #222;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+
+        .f-item .fi-col { display: flex; flex-direction: column; }
+        .f-item .fi-col label {
+            font-size: 11px;
+            color: #777;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .f-item .fi-servicio { flex: 2; }
+        .f-item .fi-custom { flex: 2; display: none; }
+        .f-item .fi-custom.visible { display: flex; }
+        .f-item .fi-precio { flex: 1; }
+        .f-item .fi-monto {
+            flex: 0 0 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .f-item .fi-monto .monto-val {
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            padding: 10px 0;
+        }
+
+        .f-item .fi-col .f-input,
+        .f-item .fi-col .f-select {
+            padding: 8px 10px;
+            font-size: 13px;
+        }
+
+        .btn-del {
+            flex: 0 0 34px;
+            height: 34px;
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2px;
+        }
+
+        .btn-del:hover { background: #c0392b; }
+
+        .btn-add {
+            background: none;
+            border: 1.5px dashed #888;
+            color: #ccc;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .btn-add:hover { background: rgba(255,255,255,0.05); }
+
+        .f-subtotal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0 24px;
+            padding: 14px 18px;
+            background: #222;
+            border: 1.5px solid #555;
+            border-radius: 10px;
+        }
+
+        .f-subtotal span:first-child {
+            font-weight: 700;
+            font-size: 14px;
+            color: #aaa;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #subtotalDisplay {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .btn-gen {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background: #111;
+            color: #fff;
+            border: 1.5px solid #555;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            font-family: inherit;
+            transition: background 0.2s;
+        }
+
+        .btn-gen:hover { background: #333; }
+
+        /* ============================================================
+           RECIBO (oculto en pantalla)
+           ============================================================ */
+        #recibo { display: none; }
+
+        .r-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            background: #fff;
+            color: #000;
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header negro con logo izquierda */
+        .r-header {
+            background: #111;
+            padding: 30px 40px;
+        }
+
+        .r-header img {
+            height: 80px;
+            display: block;
+            object-fit: contain;
+        }
+
+        /* Separador: negro corto + negro largo */
+        .r-sep {
+            display: flex;
+            height: 3px;
+        }
+
+        .r-sep-short {
+            width: 80px;
+            background: #000;
+            flex-shrink: 0;
+        }
+
+        .r-sep-long {
+            flex: 1;
+            background: #444;
+        }
+
+        /* Datos: Fecha / Cliente */
+        .r-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 35px 40px;
+            background: #fff;
+        }
+
+        .r-info-col {}
+        .r-info-col.right { text-align: right; }
+
+        .r-info-col .r-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 5px;
+        }
+
+        .r-info-col .r-value {
+            font-size: 13px;
+            color: #333;
+        }
+
+        /* Tabla */
+        .r-table-wrap { padding: 0 40px; }
+
+        .r-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .r-table col.col-desc { width: 65%; }
+        .r-table col.col-monto { width: 35%; }
+
+        .r-table thead th {
+            background: #111;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            letter-spacing: 0.4px;
+        }
+
+        .r-table thead th:first-child { text-align: left; }
+        .r-table thead th:last-child { text-align: right; }
+
+        .r-table tbody td {
+            padding: 0 15px;
+            height: 45px;
+            font-size: 13px;
+            color: #222;
+            border-bottom: 1px solid #CCC;
+            background: #fff;
+            vertical-align: middle;
+        }
+
+        .r-table tbody td:first-child { text-align: left; }
+        .r-table tbody td:last-child { text-align: right; }
+
+        .r-table tfoot td {
+            background: #111;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            padding: 12px 15px;
+            letter-spacing: 0.4px;
+        }
+
+        .r-table tfoot td:first-child { text-align: left; }
+        .r-table tfoot td:last-child { text-align: right; }
+
+        /* Filas extra debajo del total */
+        .r-extra-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            height: 45px;
+            border-bottom: 1px solid #CCC;
+            background: #fff;
+            font-size: 13px;
+            color: #222;
+        }
+
+        .r-extra-row .r-extra-label {
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .r-extra-row .r-extra-value {
+            font-weight: 700;
+        }
+
+        /* Espacio blanco */
+        .r-spacer { height: 120px; }
+
+        /* Separador inferior */
+        .r-sep-bottom {
+            height: 2px;
+            background: #111;
+            margin: 0 40px;
+        }
+
+        /* Footer negro con logo grande centrado */
+        .r-footer {
+            text-align: center;
+            padding: 30px 40px;
+            background: #111;
+        }
+
+        .r-footer img {
+            width: 300px;
+            display: inline-block;
+            object-fit: contain;
+        }
+
+        /* Barra final negra */
+        .r-bar {
+            height: 18px;
+            background: #111;
+            margin-top: auto;
+        }
+
+        /* ============================================================
+           @media print
+           ============================================================ */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            html, body {
+                background: #fff;
+                margin: 0;
+                padding: 0;
+                width: 210mm;
+                min-height: 297mm;
+            }
+
+            #formulario { display: none !important; }
+
+            #recibo {
+                display: block !important;
+                width: 100%;
+            }
+
+            .r-page {
+                width: 100%;
+                min-height: 297mm;
+            }
+
+            .r-table { page-break-inside: avoid; }
+            .r-footer { page-break-inside: avoid; }
+
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================================================================
+         FORMULARIO
+         ================================================================ -->
+    <div id="formulario">
+        <h1>Sellify &mdash; Generador de Recibos</h1>
+
+        <!-- Fecha + Nombre -->
+        <div class="f-row">
+            <div class="f-col">
+                <label class="f-label" for="fDate">Fecha</label>
+                <input type="date" id="fDate" class="f-input">
+            </div>
+            <div class="f-col">
+                <label class="f-label" for="fName">Nombre del Cliente</label>
+                <input type="text" id="fName" class="f-input" placeholder="Nombre completo">
+            </div>
+        </div>
+
+        <!-- Moneda -->
+        <div style="margin-bottom: 22px;">
+            <label class="f-label" for="fCurrency">Moneda</label>
+            <select id="fCurrency" class="f-select">
+                <option value="USD">USD</option>
+                <option value="ARS">ARS</option>
+            </select>
+        </div>
+
+        <!-- Tipo de pago -->
+        <div style="margin-bottom: 6px;">
+            <label class="f-label">Tipo de Pago</label>
+        </div>
+        <div class="f-radios">
+            <label><input type="radio" name="payType" value="full" checked> Pago completo</label>
+            <label><input type="radio" name="payType" value="deposit"> Se&ntilde;a</label>
+        </div>
+
+        <!-- Items -->
+        <div class="f-items-title">
+            <span>Servicios</span>
+            <button class="btn-add" id="btnAdd">+ Agregar servicio</button>
+        </div>
+
+        <div id="itemsContainer"></div>
+
+        <!-- Subtotal -->
+        <div class="f-subtotal">
+            <span>Total</span>
+            <span id="subtotalDisplay">$0 USD</span>
+        </div>
+
+        <!-- Saldo Pendiente (opcional) -->
+        <div style="margin-bottom: 22px;">
+            <label class="f-label" for="fSaldo">Saldo Pendiente (opcional)</label>
+            <input type="number" id="fSaldo" class="f-input" placeholder="0" min="0">
+        </div>
+
+        <!-- Metodo de Pago -->
+        <div style="margin-bottom: 22px;">
+            <label class="f-label" for="fMetodo">M&eacute;todo de Pago</label>
+            <select id="fMetodo" class="f-select">
+                <option value="Efectivo ARS">Efectivo ARS</option>
+                <option value="Efectivo USD">Efectivo USD</option>
+                <option value="Transferencia ARS">Transferencia ARS</option>
+            </select>
+        </div>
+
+        <!-- Generar -->
+        <button class="btn-gen" id="btnGen">Generar PDF</button>
+    </div>
+
+    <!-- ================================================================
+         RECIBO
+         ================================================================ -->
+    <div id="recibo">
+        <div class="r-page">
+
+            <!-- Header negro + logo izquierda -->
+            <div class="r-header">
+                <img id="logoSmall" src="Logo.png" alt="Sellify">
+            </div>
+
+            <!-- Separador -->
+            <div class="r-sep">
+                <div class="r-sep-short"></div>
+                <div class="r-sep-long"></div>
+            </div>
+
+            <!-- Datos -->
+            <div class="r-info">
+                <div class="r-info-col">
+                    <div class="r-label">Fecha :</div>
+                    <div class="r-value" id="rDate"></div>
+                </div>
+                <div class="r-info-col right">
+                    <div class="r-label">Cliente :</div>
+                    <div class="r-value" id="rTo"></div>
+                </div>
+            </div>
+
+            <!-- Tabla -->
+            <div class="r-table-wrap">
+                <table class="r-table">
+                    <colgroup>
+                        <col class="col-desc">
+                        <col class="col-monto">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Descripci&oacute;n</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rItems"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td id="rTotalLabel">Total :</td>
+                            <td id="rTotal"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Filas extra -->
+            <div class="r-table-wrap">
+                <div id="rSaldoRow" class="r-extra-row" style="display:none;">
+                    <span class="r-extra-label">Saldo Pendiente :</span>
+                    <span class="r-extra-value" id="rSaldo"></span>
+                </div>
+                <div id="rMetodoRow" class="r-extra-row">
+                    <span class="r-extra-label">M&eacute;todo de Pago :</span>
+                    <span class="r-extra-value" id="rMetodo"></span>
+                </div>
+            </div>
+
+            <!-- Espacio blanco -->
+            <div class="r-spacer"></div>
+
+            <!-- Separador inferior -->
+            <div class="r-sep">
+                <div class="r-sep-short"></div>
+                <div class="r-sep-long"></div>
+            </div>
+
+            <!-- Footer negro + logo grande centrado -->
+            <div class="r-footer">
+                <img id="logoLarge" src="Logo.png" alt="Sellify">
+            </div>
+
+            <!-- Barra final negra -->
+            <div class="r-bar"></div>
+
+        </div>
+    </div>
+
+    <!-- ================================================================
+         JAVASCRIPT
+         ================================================================ -->
+    <script>
+        /* === Servicios disponibles === */
+        var SERVICIOS = [
+            'Plan de ejecucion unica',
+            'Plan de seguimiento'
+        ];
+
+        /* === Meses en espanol === */
+        var MESES = [
+            'enero','febrero','marzo','abril','mayo','junio',
+            'julio','agosto','septiembre','octubre','noviembre','diciembre'
+        ];
+
+        function formatDate(iso) {
+            var parts = iso.split('-');
+            var y = parseInt(parts[0], 10);
+            var m = parseInt(parts[1], 10) - 1;
+            var d = parseInt(parts[2], 10);
+            return d + ' de ' + MESES[m] + ' de ' + y;
+        }
+
+        function getCurrency() {
+            return document.getElementById('fCurrency').value;
+        }
+
+        function fmtMoney(n) {
+            return '$' + n.toLocaleString('en-US') + ' ' + getCurrency();
+        }
+
+        /* === Crear fila de item === */
+        var itemCounter = 0;
+
+        function createItemRow() {
+            itemCounter++;
+            var div = document.createElement('div');
+            div.className = 'f-item';
+
+            var opts = '';
+            for (var i = 0; i < SERVICIOS.length; i++) {
+                opts += '<option value="' + SERVICIOS[i] + '">' + SERVICIOS[i] + '</option>';
+            }
+            opts += '<option value="__otro">Otro</option>';
+
+            div.innerHTML =
+                '<div class="fi-col fi-servicio">' +
+                    '<label>Servicio</label>' +
+                    '<select class="f-select sel-servicio">' + opts + '</select>' +
+                '</div>' +
+                '<div class="fi-col fi-custom">' +
+                    '<label>Servicio personalizado</label>' +
+                    '<input type="text" class="f-input inp-custom" placeholder="Nombre del servicio">' +
+                '</div>' +
+                '<div class="fi-col fi-precio">' +
+                    '<label>Precio</label>' +
+                    '<input type="number" class="f-input inp-precio" placeholder="0" min="0">' +
+                '</div>' +
+                '<div class="fi-col fi-monto">' +
+                    '<label>Monto</label>' +
+                    '<div class="monto-val">$0 ' + getCurrency() + '</div>' +
+                '</div>' +
+                '<button class="btn-del" title="Eliminar">&times;</button>';
+
+            var selServicio = div.querySelector('.sel-servicio');
+            var customWrap = div.querySelector('.fi-custom');
+            selServicio.addEventListener('change', function() {
+                if (this.value === '__otro') {
+                    customWrap.classList.add('visible');
+                } else {
+                    customWrap.classList.remove('visible');
+                }
+            });
+
+            div.querySelector('.inp-precio').addEventListener('input', function() {
+                updateRowMonto(div);
+            });
+
+            div.querySelector('.btn-del').addEventListener('click', function() {
+                var container = document.getElementById('itemsContainer');
+                if (container.children.length > 1) {
+                    div.remove();
+                    recalcSubtotal();
+                }
+            });
+
+            return div;
+        }
+
+        function updateRowMonto(row) {
+            var precio = parseFloat(row.querySelector('.inp-precio').value) || 0;
+            row.querySelector('.monto-val').textContent = fmtMoney(precio);
+            recalcSubtotal();
+        }
+
+        function recalcSubtotal() {
+            var rows = document.querySelectorAll('.f-item');
+            var total = 0;
+            rows.forEach(function(row) {
+                total += parseFloat(row.querySelector('.inp-precio').value) || 0;
+            });
+            document.getElementById('subtotalDisplay').textContent = fmtMoney(total);
+        }
+
+        /* Actualizar montos en pantalla cuando cambia la moneda */
+        document.getElementById('fCurrency').addEventListener('change', function() {
+            document.querySelectorAll('.f-item').forEach(function(row) {
+                updateRowMonto(row);
+            });
+            recalcSubtotal();
+        });
+
+        /* Primera fila */
+        document.getElementById('itemsContainer').appendChild(createItemRow());
+
+        /* Boton agregar */
+        document.getElementById('btnAdd').addEventListener('click', function() {
+            document.getElementById('itemsContainer').appendChild(createItemRow());
+        });
+
+        /* === Validacion === */
+        function validate() {
+            var ok = true;
+            var msgs = [];
+            var dateEl = document.getElementById('fDate');
+            var nameEl = document.getElementById('fName');
+
+            document.querySelectorAll('.error').forEach(function(el) { el.classList.remove('error'); });
+
+            if (!dateEl.value) {
+                dateEl.classList.add('error');
+                msgs.push('Selecciona una fecha');
+                ok = false;
+            }
+
+            if (!nameEl.value.trim()) {
+                nameEl.classList.add('error');
+                msgs.push('Ingresa el nombre del cliente');
+                ok = false;
+            }
+
+            var rows = document.querySelectorAll('.f-item');
+            var hasValid = false;
+            rows.forEach(function(row) {
+                var servicio = row.querySelector('.sel-servicio').value;
+                var precio = parseFloat(row.querySelector('.inp-precio').value) || 0;
+                if (servicio === '__otro') {
+                    var custom = row.querySelector('.inp-custom').value.trim();
+                    if (custom && precio > 0) hasValid = true;
+                } else {
+                    if (precio > 0) hasValid = true;
+                }
+            });
+
+            if (!hasValid) {
+                msgs.push('Agrega al menos 1 servicio con precio');
+                ok = false;
+            }
+
+            if (!ok) alert(msgs.join('\n'));
+            return ok;
+        }
+
+        /* === Generar recibo === */
+        document.getElementById('btnGen').addEventListener('click', function() {
+            if (!validate()) return;
+
+            var currency = getCurrency();
+
+            function fmtR(n) {
+                return '$' + n.toLocaleString('en-US') + ' ' + currency;
+            }
+
+            // Fecha
+            document.getElementById('rDate').textContent = formatDate(document.getElementById('fDate').value);
+
+            // Cliente
+            document.getElementById('rTo').textContent = document.getElementById('fName').value.trim();
+
+            // Items
+            var tbody = document.getElementById('rItems');
+            tbody.innerHTML = '';
+
+            var rows = document.querySelectorAll('.f-item');
+            var items = [];
+            var total = 0;
+
+            rows.forEach(function(row) {
+                var servicio = row.querySelector('.sel-servicio').value;
+                if (servicio === '__otro') {
+                    servicio = row.querySelector('.inp-custom').value.trim() || 'Otro';
+                }
+                var precio = parseFloat(row.querySelector('.inp-precio').value) || 0;
+
+                if (precio > 0) {
+                    items.push({ desc: servicio, monto: precio });
+                    total += precio;
+                }
+            });
+
+            // Siempre 4 filas
+            var totalRows = Math.max(4, items.length);
+            for (var i = 0; i < totalRows; i++) {
+                var tr = document.createElement('tr');
+                var tdDesc = document.createElement('td');
+                var tdMonto = document.createElement('td');
+
+                if (i < items.length) {
+                    tdDesc.textContent = items[i].desc;
+                    tdMonto.textContent = fmtR(items[i].monto);
+                } else {
+                    tdDesc.innerHTML = '&nbsp;';
+                    tdMonto.innerHTML = '&nbsp;';
+                }
+
+                tr.appendChild(tdDesc);
+                tr.appendChild(tdMonto);
+                tbody.appendChild(tr);
+            }
+
+            // Label del total segun tipo de pago
+            var payType = document.querySelector('input[name="payType"]:checked').value;
+            document.getElementById('rTotalLabel').textContent =
+                payType === 'deposit' ? 'Se\u00f1a :' : 'Total :';
+
+            // Total monto
+            document.getElementById('rTotal').textContent = fmtR(total);
+
+            // Saldo Pendiente (opcional)
+            var saldoVal = parseFloat(document.getElementById('fSaldo').value) || 0;
+            var saldoRow = document.getElementById('rSaldoRow');
+            if (saldoVal > 0) {
+                document.getElementById('rSaldo').textContent = fmtR(saldoVal);
+                saldoRow.style.display = 'flex';
+            } else {
+                saldoRow.style.display = 'none';
+            }
+
+            // Metodo de Pago (siempre visible)
+            document.getElementById('rMetodo').textContent =
+                document.getElementById('fMetodo').value;
+
+            // Titulo para nombre de archivo
+            var clientName = document.getElementById('fName').value.trim().replace(/\s+/g, '_');
+            document.title = 'Recibo_Sellify_' + clientName;
+
+            window.print();
+
+            document.title = 'Sellify - Generador de Recibos';
+        });
+    </script>
+</body>
+</html>
