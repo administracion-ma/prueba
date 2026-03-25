@@ -8,13 +8,15 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
             background: #F5F5F5;
             color: #333;
             padding: 40px 20px;
         }
 
-        /* ========== FORMULARIO ========== */
+        /* ========================================================
+           FORMULARIO (visible en pantalla, oculto al imprimir)
+           ======================================================== */
         .container {
             max-width: 700px;
             margin: 0 auto;
@@ -149,10 +151,7 @@
             text-align: center;
         }
 
-        .logo-section label {
-            display: block;
-            margin-bottom: 10px;
-        }
+        .logo-section label { display: block; margin-bottom: 10px; }
 
         .logo-preview {
             width: 180px;
@@ -200,74 +199,81 @@
             display: none;
         }
 
-        /* ========== RECIBO (oculto en pantalla, visible al imprimir) ========== */
+        /* ========================================================
+           RECIBO (oculto en pantalla, visible al imprimir)
+           ======================================================== */
         #receipt {
             display: none;
         }
 
         .receipt-page {
-            width: 100%;
-            max-width: 210mm;
+            width: 210mm;
             margin: 0 auto;
-            padding: 15mm 20mm;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
             color: #333;
             background: #fff;
         }
 
-        /* Linea decorativa superior */
-        .receipt-line-top {
-            height: 3px;
-            background: #F5A623;
-            border-bottom: 1.5px solid #000;
-            margin-bottom: 20px;
+        /* --- HEADER: fondo gris, logo a la izquierda --- */
+        .receipt-header {
+            background: #EEEEEE;
+            padding: 28px 30px 22px 30px;
         }
 
-        /* Logo superior */
-        .receipt-logo-top {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        .receipt-logo-top img {
-            max-width: 200px;
-            max-height: 80px;
+        .receipt-header img {
+            max-width: 160px;
+            max-height: 60px;
             object-fit: contain;
+            display: block;
         }
 
-        .receipt-logo-top .placeholder-text {
-            font-size: 24px;
+        .receipt-header .placeholder-text {
+            font-size: 22px;
             font-weight: 700;
             color: #F5A623;
             letter-spacing: 2px;
         }
 
-        /* Invoice info: dos columnas */
+        /* --- Linea doble decorativa (naranja gruesa + negra fina) --- */
+        .receipt-divider-top {
+            height: 4px;
+            background: #F5A623;
+            border-bottom: 1.5px solid #000;
+        }
+
+        .receipt-divider-bottom {
+            border-top: 1.5px solid #000;
+            height: 4px;
+            background: #F5A623;
+        }
+
+        /* --- Seccion datos: Invoice Date / Invoice To --- */
         .receipt-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 24px;
+            padding: 24px 30px;
+            background: #fff;
         }
 
-        .receipt-info div { flex: 1; }
+        .receipt-info-col { flex: 1; }
+        .receipt-info-col.right { text-align: right; }
 
-        .receipt-info .info-label {
-            font-weight: 700;
+        .receipt-info-col .info-label {
             font-size: 13px;
-            color: #555;
+            color: #888;
             margin-bottom: 4px;
         }
 
-        .receipt-info .info-value {
-            font-size: 15px;
+        .receipt-info-col .info-value {
+            font-size: 16px;
+            font-weight: 600;
             color: #222;
         }
 
-        /* Tabla de items */
+        /* --- Tabla de items --- */
         .receipt-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 0;
         }
 
         .receipt-table thead th {
@@ -275,24 +281,37 @@
             color: #fff;
             font-weight: 700;
             font-size: 13px;
-            padding: 10px 12px;
+            padding: 11px 16px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .receipt-table thead th:first-child { text-align: left; }
-        .receipt-table thead th:last-child { text-align: right; }
+        .receipt-table thead th:first-child {
+            text-align: left;
+            width: 70%;
+        }
+
+        .receipt-table thead th:last-child {
+            text-align: right;
+            width: 30%;
+        }
 
         .receipt-table tbody td {
-            padding: 10px 12px;
+            padding: 11px 16px;
             font-size: 14px;
-            border-bottom: 1px solid #eee;
+            color: #222;
+            border-bottom: 1px solid #ddd;
+            background: #fff;
         }
 
         .receipt-table tbody td:first-child { text-align: left; }
         .receipt-table tbody td:last-child { text-align: right; }
 
-        .receipt-table tbody tr:nth-child(even) { background: #fafafa; }
+        /* Filas vacias decorativas */
+        .receipt-table tbody tr.empty-row td {
+            height: 38px;
+            border-bottom: 1px solid #ddd;
+        }
 
         /* Fila subtotal */
         .receipt-table tfoot td {
@@ -300,42 +319,41 @@
             color: #fff;
             font-weight: 700;
             font-size: 15px;
-            padding: 12px;
+            padding: 12px 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .receipt-table tfoot td:first-child { text-align: left; }
         .receipt-table tfoot td:last-child { text-align: right; }
 
-        /* Logo inferior grande */
-        .receipt-logo-bottom {
+        /* --- FOOTER: logo grande centrado, fondo gris --- */
+        .receipt-footer {
+            background: #EEEEEE;
+            padding: 30px 30px 28px;
             text-align: center;
-            margin-top: 40px;
-            margin-bottom: 20px;
+            margin-top: 0;
         }
 
-        .receipt-logo-bottom img {
-            max-width: 260px;
-            max-height: 100px;
+        .receipt-footer img {
+            max-width: 300px;
+            max-height: 110px;
             object-fit: contain;
+            display: inline-block;
         }
 
-        .receipt-logo-bottom .placeholder-text {
-            font-size: 30px;
+        .receipt-footer .placeholder-text {
+            font-size: 32px;
             font-weight: 700;
             color: #F5A623;
             letter-spacing: 3px;
         }
 
-        /* Linea decorativa inferior */
-        .receipt-line-bottom {
-            height: 1.5px;
-            background: #000;
-            border-bottom: 3px solid #F5A623;
-        }
-
-        /* ========== @media print ========== */
+        /* ========================================================
+           @media print
+           ======================================================== */
         @media print {
-            /* Ocultar todo el formulario */
+            /* Ocultar formulario */
             body {
                 background: #fff;
                 padding: 0;
@@ -346,27 +364,30 @@
                 display: none !important;
             }
 
-            /* Mostrar el recibo */
+            /* Mostrar recibo */
             #receipt {
                 display: block !important;
             }
 
             .receipt-page {
-                padding: 10mm 15mm;
+                width: 100%;
                 max-width: 100%;
             }
 
-            /* Evitar cortes de pagina en la tabla */
-            .receipt-table { page-break-inside: avoid; }
-            .receipt-logo-bottom { page-break-inside: avoid; }
-
-            /* Quitar margenes de impresion del navegador */
+            /* Pagina A4, margenes 0 */
             @page {
-                margin: 5mm;
+                margin: 0;
                 size: A4 portrait;
             }
 
             /* Forzar colores de fondo en impresion */
+            .receipt-header,
+            .receipt-footer {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
+            }
+
             .receipt-table thead th,
             .receipt-table tfoot td {
                 -webkit-print-color-adjust: exact;
@@ -374,24 +395,28 @@
                 color-adjust: exact;
             }
 
-            .receipt-table tbody tr:nth-child(even) {
+            .receipt-table tbody td {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 color-adjust: exact;
             }
 
-            .receipt-line-top,
-            .receipt-line-bottom {
+            .receipt-divider-top,
+            .receipt-divider-bottom {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
                 color-adjust: exact;
             }
+
+            /* Evitar cortes de pagina */
+            .receipt-table { page-break-inside: avoid; }
+            .receipt-footer { page-break-inside: avoid; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ========== FORMULARIO (visible en pantalla, oculto al imprimir) ========== -->
+    <!-- ========== FORMULARIO ========== -->
     <div class="container">
         <h1>Coinbox Mining</h1>
         <p class="subtitle">Generador de Recibos PDF</p>
@@ -444,22 +469,23 @@
     <!-- ========== RECIBO (oculto en pantalla, visible al imprimir) ========== -->
     <div id="receipt">
         <div class="receipt-page">
-            <!-- Linea decorativa superior -->
-            <div class="receipt-line-top"></div>
 
-            <!-- Logo superior -->
-            <div class="receipt-logo-top" id="receiptLogoTop">
+            <!-- HEADER: fondo gris, logo izquierda -->
+            <div class="receipt-header" id="receiptHeader">
                 <span class="placeholder-text">COINBOX MINING</span>
             </div>
 
-            <!-- Invoice Date / Invoice To -->
+            <!-- Linea doble: naranja gruesa + negra fina -->
+            <div class="receipt-divider-top"></div>
+
+            <!-- Datos: Invoice Date / Invoice To -->
             <div class="receipt-info">
-                <div>
-                    <div class="info-label">Invoice Date:</div>
+                <div class="receipt-info-col">
+                    <div class="info-label">Invoice Date :</div>
                     <div class="info-value" id="receiptDate"></div>
                 </div>
-                <div style="text-align: right;">
-                    <div class="info-label">Invoice To:</div>
+                <div class="receipt-info-col right">
+                    <div class="info-label">Invoice To :</div>
                     <div class="info-value" id="receiptTo"></div>
                 </div>
             </div>
@@ -475,25 +501,26 @@
                 <tbody id="receiptItems"></tbody>
                 <tfoot>
                     <tr>
-                        <td>SUBTOTAL</td>
-                        <td id="receiptSubtotal" style="text-align: right;"></td>
+                        <td>SUBTOTAL :</td>
+                        <td id="receiptSubtotal"></td>
                     </tr>
                 </tfoot>
             </table>
 
-            <!-- Logo inferior grande -->
-            <div class="receipt-logo-bottom" id="receiptLogoBottom">
+            <!-- Linea doble: negra fina + naranja gruesa -->
+            <div class="receipt-divider-bottom"></div>
+
+            <!-- FOOTER: logo grande centrado, fondo gris -->
+            <div class="receipt-footer" id="receiptFooter">
                 <span class="placeholder-text">COINBOX MINING</span>
             </div>
 
-            <!-- Linea decorativa inferior -->
-            <div class="receipt-line-bottom"></div>
         </div>
     </div>
 
     <script>
         // === Estado del logo ===
-        let logoDataURL = null;
+        var logoDataURL = null;
 
         // Cargar logo desde archivo
         document.getElementById('logoInput').addEventListener('change', function(e) {
@@ -540,7 +567,6 @@
             document.getElementById('subtotalDisplay').textContent = '$' + total.toLocaleString('en-US') + ' USD';
         }
 
-        // Escuchar cambios en montos
         document.getElementById('itemsContainer').addEventListener('input', function(e) {
             if (e.target.classList.contains('item-amount')) recalcSubtotal();
         });
@@ -574,24 +600,26 @@
         document.getElementById('btnGenerate').addEventListener('click', function() {
             if (!validateForm()) return;
 
-            // Poblar datos del recibo
-            document.getElementById('receiptDate').textContent = document.getElementById('invoiceDate').value.trim();
-            document.getElementById('receiptTo').textContent = document.getElementById('invoiceTo').value.trim();
+            // Poblar datos
+            document.getElementById('receiptDate').textContent =
+                document.getElementById('invoiceDate').value.trim();
+            document.getElementById('receiptTo').textContent =
+                document.getElementById('invoiceTo').value.trim();
 
-            // Logo superior
-            var logoTopEl = document.getElementById('receiptLogoTop');
+            // Logo header (pequeno, izquierda)
+            var headerEl = document.getElementById('receiptHeader');
             if (logoDataURL) {
-                logoTopEl.innerHTML = '<img src="' + logoDataURL + '" alt="Coinbox Mining">';
+                headerEl.innerHTML = '<img src="' + logoDataURL + '" alt="Coinbox Mining">';
             } else {
-                logoTopEl.innerHTML = '<span class="placeholder-text">COINBOX MINING</span>';
+                headerEl.innerHTML = '<span class="placeholder-text">COINBOX MINING</span>';
             }
 
-            // Logo inferior
-            var logoBottomEl = document.getElementById('receiptLogoBottom');
+            // Logo footer (grande, centrado)
+            var footerEl = document.getElementById('receiptFooter');
             if (logoDataURL) {
-                logoBottomEl.innerHTML = '<img src="' + logoDataURL + '" alt="Coinbox Mining">';
+                footerEl.innerHTML = '<img src="' + logoDataURL + '" alt="Coinbox Mining">';
             } else {
-                logoBottomEl.innerHTML = '<span class="placeholder-text">COINBOX MINING</span>';
+                footerEl.innerHTML = '<span class="placeholder-text">COINBOX MINING</span>';
             }
 
             // Armar filas de items
@@ -612,16 +640,24 @@
                 tdDesc.textContent = desc;
                 var tdAmount = document.createElement('td');
                 tdAmount.textContent = amountStr;
-                tdAmount.style.textAlign = 'right';
                 tr.appendChild(tdDesc);
                 tr.appendChild(tdAmount);
                 tbody.appendChild(tr);
             }
 
-            // Subtotal
-            document.getElementById('receiptSubtotal').textContent = '$' + subtotal.toLocaleString('en-US') + ' USD';
+            // Agregar 3 filas vacias decorativas
+            for (var j = 0; j < 3; j++) {
+                var emptyTr = document.createElement('tr');
+                emptyTr.className = 'empty-row';
+                emptyTr.innerHTML = '<td>&nbsp;</td><td>&nbsp;</td>';
+                tbody.appendChild(emptyTr);
+            }
 
-            // Cambiar titulo del documento para sugerir nombre del archivo PDF
+            // Subtotal
+            document.getElementById('receiptSubtotal').textContent =
+                '$' + subtotal.toLocaleString('en-US') + ' USD';
+
+            // Cambiar titulo para sugerir nombre de archivo en Chrome
             var clientName = document.getElementById('invoiceTo').value.trim().replace(/\s+/g, '_');
             var dateStr = document.getElementById('invoiceDate').value.trim().replace(/\s+/g, '_');
             document.title = 'Recibo_Coinbox_' + clientName + '_' + dateStr;
